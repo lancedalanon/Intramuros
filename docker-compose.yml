@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/var/www/html # Mount the current directory to /var/www/html
+    networks:
+      - app-network
+
+  db:
+    image: mysql:5.7
+    volumes:
+      - ./database:/docker-entrypoint-initdb.d
+    environment:
+      MYSQL_DATABASE: intramuros
+      MYSQL_ROOT_PASSWORD: yourpassword # change this to a strong password
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
