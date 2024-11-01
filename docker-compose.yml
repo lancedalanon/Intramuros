@@ -6,14 +6,18 @@ services:
       context: .  # Build context is the current directory
       dockerfile: Dockerfile
     volumes:
-      - .:/var/www/html/public  # Adjust if your structure differs
+      - .:/var/www/html  # Adjust if your structure differs
     networks:
       - app-network
+    depends_on:
+      - db  # Ensure db is started before app
+    ports:
+      - "80:80"  # Map port 80 of the container to port 80 on the host
 
   db:
     image: mysql:5.7
     volumes:
-      - ./database:/docker-entrypoint-initdb.d
+      - ./database:/docker-entrypoint-initdb.d  # SQL scripts will be executed on first run
     environment:
       MYSQL_DATABASE: intramuros
       MYSQL_ROOT_PASSWORD: yourpassword  # Change to a strong password

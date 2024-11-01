@@ -1,10 +1,22 @@
-FROM richarvey/nginx-php-fpm:latest
+# Use the lightweight PHP image with FPM
+FROM php:8.2-fpm-alpine AS build
 
+# Install necessary extensions
+RUN apk add --no-cache libpng-dev libjpeg-turbo-dev libwebp-dev libxpm-dev \
+    && docker-php-ext-configure gd --with-jpeg --with-webp --with-xpm \
+    && docker-php-ext-install gd pdo pdo_mysql
+
+# Set the working directory to the root
+WORKDIR /var/www/html
+
+# Copy all PHP files into the container
 COPY . .
 
-# Image config
-ENV SKIP_COMPOSER 1
-ENV WEBROOT /var/www/html/public
-ENV PHP_ERRORS_STDERR 1
-ENV RUN_SCRIPTS 1
-ENV REAL_IP_HEADER 1
+# Set permissions (if needed)
+RUN chown -R www-data:www-data /var/www/html
+
+# Expose port 80
+EXPOSE 80
+
+# Start PHP-FPM
+CMD ["php-fpm"]
