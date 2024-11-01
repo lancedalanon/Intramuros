@@ -1,26 +1,15 @@
-# Use the lightweight PHP image with FPM
-FROM php:8.2-fpm-alpine AS build
+FROM richarvey/nginx-php-fpm:latest
 
-# Install necessary extensions
-RUN docker-php-ext-install pdo pdo_mysql
-
-# Set the working directory to the root
-WORKDIR /var/www/html
-
-# Copy all PHP files into the container
 COPY . .
 
-# Set permissions (if needed)
-RUN chown -R www-data:www-data /var/www/html
+# Image config
+ENV SKIP_COMPOSER 1
+ENV WEBROOT /var/www/html/public
+ENV PHP_ERRORS_STDERR 1
+ENV RUN_SCRIPTS 1
+ENV REAL_IP_HEADER 1
 
-# Install Nginx
-RUN apk add --no-cache nginx
+# Allow composer to run as root
+ENV COMPOSER_ALLOW_SUPERUSER 1
 
-# Copy the nginx configuration from conf/nginx/nginx-site.conf to the correct location
-COPY conf/nginx/nginx-site.conf /etc/nginx/conf.d/default.conf
-
-# Expose port 80
-EXPOSE 80
-
-# Start Nginx and PHP-FPM
-CMD ["sh", "-c", "nginx && php-fpm"]
+CMD ["/start.sh"]
